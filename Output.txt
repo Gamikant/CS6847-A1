@@ -1,8 +1,8 @@
-<Docker @ 10 RPS, 0.1069>
+<Docker @ 10 RPS, 0.0569>
 <Docker @ 100 RPS, 1.2901>
 <Docker @ 1000 RPS, 4.0607>
-<Docker @ 10000 RPS, 5.9092>
-<Kubernetes @ 10 RPS, 0.2034>
+<Docker @ 10000 RPS, 5.7032>
+<Kubernetes @ 10 RPS, 0.1807>
 <Kubernetes @ 100 RPS, 5.3287>
 <Kubernetes @ 1000 RPS, 7.4251>
-<Kubernetes @ 10000 RPS, 7.6658>
+<Kubernetes @ 10000 RPS, 7.3213>
