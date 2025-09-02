@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cpu-loader-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: cpu-loader
+  template:
+    metadata:
+      labels:
+        app: cpu-loader
+    spec:
+      containers:
+      - name: server-container
+        image: cpu-loader-server:v1
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5000
+        resources:
+          requests:
+            cpu: "200m"
+          limits:
+            cpu: "500m"

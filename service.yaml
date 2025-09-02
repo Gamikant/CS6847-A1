@@ -1,0 +1,14 @@
+# service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: cpu-loader-service
+spec:
+  # Revert back to NodePort for reliability
+  type: NodePort
+  selector:
+    app: cpu-loader
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000
