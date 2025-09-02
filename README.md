@@ -78,7 +78,7 @@ kubectl port-forward service/cpu-loader-service --address 0.0.0.0 5002:5000
 The evaluator will run the `client.py` script twice from their machine to test each environment.
 
 1.  **Test the Docker Swarm Environment**
-    Run the client script with the `--environment docker` flag and the Docker Swarm URL provided by the host.
+    Run the client script with the `--environment docker` flag and the Docker Swarm URL providedy the host.
 
 ```bash
 # Replace <DOCKER_IP> with the host's Wi-Fi IP
