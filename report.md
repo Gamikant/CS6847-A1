@@ -103,6 +103,9 @@ Tests were conducted at 10, 100, 1000, and 10,000 RPS against both environments.
 ### 3.2. Performance Plot
 
 *Figure 3: Comparison of Average Response Times (in seconds) across different loads. A lower bar indicates better performance.*
+```text
+Check the visualisation at the end of this report
+```
 
 ### 3.3. Detailed Analysis
 
