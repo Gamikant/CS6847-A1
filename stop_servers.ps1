@@ -11,5 +11,5 @@ docker swarm leave --force | Out-Null
 Write-Host "  - Stopping Minikube cluster..."
 minikube stop | Out-Null
 
-Write-Host "`n❗ Please manually close the 'minikube tunnel' PowerShell window." -ForegroundColor Cyan
+Write-Host "`n❗ Please manually close the 'kubectl port-forward' PowerShell window." -ForegroundColor Cyan
 Write-Host "✅ Cleanup complete." -ForegroundColor Green

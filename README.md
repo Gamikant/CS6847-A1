@@ -1,11 +1,10 @@
 # CS6847: Cloud Computing - Assignment 1
 
-This project demonstrates and evaluates the performance of a client-server application deployed in two distinct environments: a fixed-scale service on **Docker Swarm** and an auto-scaling service on **Kubernetes**. The goal is to observe the difference in server response time under both low (10 requests/sec) and high (10,000 requests/sec) loads.
+This project demonstrates and evaluates the performance of a client-server application deployed in two distinct environments: a fixed-scale service on **Docker Swarm** and an auto-scaling service on **Kubernetes**.
 
-The entire process is streamlined with automation scripts for easy setup and a smart client for clear, separate testing of each environment.
+The client script is designed to be flexible, allowing the user to specify any request rate for testing. The entire server-side setup is fully automated with a single script for a seamless evaluation experience.
 
 ## Project Structure
-
 ```text
 .
 ├── Dockerfile              \# Instructions to build the server container
@@ -44,73 +43,61 @@ This guide is split into two parts: the setup steps for the **Server Host** and 
 
 ### Part 1: Server Host Setup (Your Steps)
 
-Follow these steps on your machine to start both server environments.
+The server setup is a simple two-step process.
 
-1. **Build the Docker Image**
-   Open PowerShell and run the following command in the project's root directory to build the container image for the server:
+1.  **Build the Docker Image**
+    Open PowerShell and run the following command in the project's root directory:
     ```bash
     docker build -t cpu-loader-server:v1 .
     ```
 
 2.  **Run the Automation Script**
-    This script will start the Docker Swarm service and prepare the Kubernetes environment. Run it in an **Administrator PowerShell** window. You may need to set the execution policy first.
-
+    Run the setup script in an **Administrator PowerShell** window. This single command will deploy both the Docker Swarm and Kubernetes services.
     ```powershell
-    # Allow script execution for the current session
+    # Allow script execution for the current session (if needed)
     Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-
+    
     # Run the main setup script
     .\start_servers.ps1
     ```
-
-    The script will provide the **final Docker Swarm URL** when it finishes.
-
-3.  **Activate the Kubernetes Service**
-    As instructed by the script's output, open a **new, separate PowerShell terminal** and run the `kubectl port-forward` command. This creates a network bridge to the Kubernetes cluster.
-
-    ```powershell
-    kubectl port-forward service/cpu-loader-service --address 0.0.0.0 5002:5000
-    ```
-
-    This command will provide you with the **final Kubernetes URL**.
-
-4.  **Provide URLs**
-    You will now have two distinct URLs, both accessible on your local network. Provide both to the evaluator. **Keep both of your PowerShell windows open** throughout the entire test.
+    The script will open a **second PowerShell window** for the Kubernetes network connection. When the script finishes, it will print the final URLs for both services. **Keep both PowerShell windows open** throughout the evaluation.
 
 ### Part 2: Evaluator's Steps (Professor's Steps)
 
-The evaluator will run the `client.py` script twice from their machine to test each environment.
+The evaluator can run the `client.py` script for any desired request rate using the `--rps` flag.
 
-1.  **Test the Docker Swarm Environment**
-    Run the client script with the `--environment docker` flag and the Docker Swarm URL providedy the host.
+**To run a test, specify the server IP, port, environment, and the desired requests per second (RPS).**
 
+#### Example Commands:
+
+* **To test Docker Swarm at 10 RPS:**
     ```bash
-    # Replace <DOCKER_IP> with the host's Wi-Fi IP
-    python client.py <DOCKER_IP> --port 5001 --environment docker
+    python client.py <DOCKER_IP> --port 5001 --environment docker --rps 10
     ```
 
-2.  **Test the Kubernetes Environment**
-    Next, run the script again with the `--environment kubernetes` flag and the Kubernetes URL.
-
+* **To test Kubernetes at 10,000 RPS:**
     ```bash
-    # Replace <KUBERNETES_IP> with the host's Wi-Fi IP
-    python client.py <KUBERNETES_IP> --port 5002 --environment kubernetes
+    python client.py <KUBERNETES_IP> --port 5002 --environment kubernetes --rps 10000
     ```
+
+* **To run a custom test (e.g., Kubernetes at 500 RPS):**
+    ```bash
+    python client.py <KUBERNETES_IP> --port 5002 --environment kubernetes --rps 500
+    ```
+
+---
 
 ## Expected Output
 
-After the evaluator runs both commands, the following files and folders will be generated on their machine:
-
-  * `outputs/Docker/`: Contains `Docker_response_10.txt` and `Docker_response_10000.txt`.
-  * `outputs/Kubernetes/`: Contains `kubernetes_response_10.txt` and `kubernetes_response_10000.txt`.
-  * `Output.txt`: A summary file with the average response time for all four experiments, formatted as `<Environment @ Rate RPS, Average Response Time>`.
+After each run, the client script will:
+1.  Create a specific response file for that test (e.g., `outputs/Docker/Docker_response_10.txt`).
+2.  Scan **all** existing response files in the `outputs` directory.
+3.  Generate a new, updated `Output.txt` file containing a sorted list of the average response times for every experiment run so far.
 
 ## Cleanup (Server Host)
 
 After the evaluation is complete, run the cleanup script on the server host machine in an **Administrator PowerShell** to stop all services and clusters.
-
 ```powershell
 .\stop_servers.ps1
 ```
-
-You will also need to manually close the `kubectl port-forward` window.
+You will also need to manually close the second PowerShell window that was opened for the Kubernetes connection.
