@@ -10,14 +10,18 @@ The entire process is streamlined with automation scripts for easy setup and a s
 .
 ├── Dockerfile              \# Instructions to build the server container
 ├── README.md               \# This file
-├── client.py               \# Automated script to run performance tests
+├── client.py               \# Automated client side script to run performance tests
 ├── deployment.yaml         \# Kubernetes Deployment configuration
 ├── hpa.yaml                \# Kubernetes Horizontal Pod Autoscaler configuration
 ├── requirements.txt        \# Python dependencies for the server
 ├── server.py               \# The Flask server application
 ├── service.yaml            \# Kubernetes Service configuration
 ├── start_servers.ps1       \# Automation script to deploy both environments
-└── stop_servers.ps1        \# Automation script to clean up all resources
+├── stop_servers.ps1        \# Automation script to deploy both environments
+├── Output.txt              \# Average response time with different rates for both environments
+└── outputs/                \# Results of both clusters with different request rates from client
+    ├── Docker/             \# Results for server container in docker swarm
+    └── kubernetes/         \# Results for server container in kubernetes
 ```
 
 ## Prerequisites
