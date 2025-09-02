@@ -4,6 +4,9 @@ This project demonstrates and evaluates the performance of a client-server appli
 
 The client script is designed to be flexible, allowing the user to specify any request rate for testing. The entire server-side setup is fully automated with a single script for a seamless evaluation experience.
 
+**GitHub Repository:**
+https://github.com/Gamikant/CS6847-A1/tree/master
+
 ## Project Structure
 ```text
 .
