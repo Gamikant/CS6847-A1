@@ -44,29 +44,29 @@ Follow these steps on your machine to start both server environments.
 
 1. **Build the Docker Image**
    Open PowerShell and run the following command in the project's root directory to build the container image for the server:
-```bash
-   docker build -t cpu-loader-server:v1 .
-```
+    ```bash
+    docker build -t cpu-loader-server:v1 .
+    ```
 
 2.  **Run the Automation Script**
     This script will start the Docker Swarm service and prepare the Kubernetes environment. Run it in an **Administrator PowerShell** window. You may need to set the execution policy first.
 
-```powershell
-# Allow script execution for the current session
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+    ```powershell
+    # Allow script execution for the current session
+    Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 
-# Run the main setup script
-.\start_servers.ps1
-```
+    # Run the main setup script
+    .\start_servers.ps1
+    ```
 
     The script will provide the **final Docker Swarm URL** when it finishes.
 
 3.  **Activate the Kubernetes Service**
     As instructed by the script's output, open a **new, separate PowerShell terminal** and run the `kubectl port-forward` command. This creates a network bridge to the Kubernetes cluster.
 
-```powershell
-kubectl port-forward service/cpu-loader-service --address 0.0.0.0 5002:5000
-```
+    ```powershell
+    kubectl port-forward service/cpu-loader-service --address 0.0.0.0 5002:5000
+    ```
 
     This command will provide you with the **final Kubernetes URL**.
 
@@ -80,18 +80,18 @@ The evaluator will run the `client.py` script twice from their machine to test e
 1.  **Test the Docker Swarm Environment**
     Run the client script with the `--environment docker` flag and the Docker Swarm URL providedy the host.
 
-```bash
-# Replace <DOCKER_IP> with the host's Wi-Fi IP
-python client.py <DOCKER_IP> --port 5001 --environment docker
-```
+    ```bash
+    # Replace <DOCKER_IP> with the host's Wi-Fi IP
+    python client.py <DOCKER_IP> --port 5001 --environment docker
+    ```
 
 2.  **Test the Kubernetes Environment**
     Next, run the script again with the `--environment kubernetes` flag and the Kubernetes URL.
 
-```bash
-# Replace <KUBERNETES_IP> with the host's Wi-Fi IP
-python client.py <KUBERNETES_IP> --port 5002 --environment kubernetes
-```
+    ```bash
+    # Replace <KUBERNETES_IP> with the host's Wi-Fi IP
+    python client.py <KUBERNETES_IP> --port 5002 --environment kubernetes
+    ```
 
 ## Expected Output
 
