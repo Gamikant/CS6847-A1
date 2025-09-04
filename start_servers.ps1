@@ -1,57 +1,64 @@
-# start_servers.ps1 (Final Fully Automated Version)
+# This script must be run with Administrator privileges.
 
-# This script must be run as an Administrator.
+Write-Host "🚀 Starting deployment for the string reversal service..." -ForegroundColor Green
 
-Write-Host "🚀 Starting full-stack deployment for cloud assignment..." -ForegroundColor Green
-
-# --- Part 1: Docker Swarm Setup ---
-Write-Host "`n[1/2] Setting up Docker Swarm environment..." -ForegroundColor Yellow
-
-# Find the Wi-Fi IP for displaying the final URL.
+# --- Part 0: Network Setup ---
+Write-Host "`n[0/3] Detecting Local Network IP Address..." -ForegroundColor Yellow
 $env:LOCAL_IP = (Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias *Wi-Fi* | Select-Object -First 1).IPAddress
 if (-not $env:LOCAL_IP) {
-    Write-Host "⚠️ Could not auto-detect Wi-Fi IP. Please find it manually with 'ipconfig' to provide to the evaluator." -ForegroundColor Yellow
+    Write-Host "⚠️ Could not auto-detect Wi-Fi/Ethernet IP. The script will use 'localhost'." -ForegroundColor Yellow
+    Write-Host "⚠️ You will need to find your IP manually using 'ipconfig' for the evaluator." -ForegroundColor Yellow
+    $env:LOCAL_IP = "localhost"
 }
+Write-Host "  - Server will be accessible at: $($env:LOCAL_IP)"
 
-# Run 'docker swarm init' without IP flags to let Docker auto-detect the best configuration.
+
+# --- Part 1: Docker Swarm Setup ---
+Write-Host "`n[1/3] Setting up Docker Swarm environment..." -ForegroundColor Yellow
+docker swarm leave --force | Out-Null
 docker swarm init
-if (-not $?) { Write-Host "❌ FATAL: 'docker swarm init' failed. Docker is unable to configure swarm networking on this machine." -ForegroundColor Red; exit 1 }
+if (-not $?) { Write-Host "❌ FATAL: 'docker swarm init' failed." -ForegroundColor Red; exit 1 }
 
-docker service create --name cpu-loader-service --replicas 3 --publish published=5001,target=5000 cpu-loader-server:v1
+docker service create --name string-reverser-swarm-service --replicas 3 --publish published=5001,target=5000 string-reverser:v1
 if (-not $?) {
     Write-Host "❌ FATAL: 'docker service create' failed." -ForegroundColor Red
     docker swarm leave --force | Out-Null; exit 1
 }
-Write-Host "  - Docker Swarm service is LIVE."
+Write-Host "  - Docker Swarm service is now LIVE."
 
 
-# --- Part 2: Kubernetes (Minikube) Setup ---
-Write-Host "`n[2/2] Preparing and activating Kubernetes environment..." -ForegroundColor Yellow
-Write-Host "  - Starting Minikube..."
-minikube start
-if (-not $?) { Write-Host "❌ FATAL: 'minikube start' failed." -ForegroundColor Red; exit 1 }
+# --- Part 2: Kubernetes (Docker Desktop) Setup ---
+Write-Host "`n[2/3] Preparing Kubernetes on Docker Desktop..." -ForegroundColor Yellow
+Write-Host "  - Ensuring kubectl context is set to 'docker-desktop'..."
+kubectl config use-context docker-desktop
 
-Write-Host "  - Loading Docker image into Minikube..."
-minikube image load cpu-loader-server:v1
-if (-not $?) { Write-Host "❌ FATAL: 'minikube image load' failed." -ForegroundColor Red; exit 1 }
-
-Write-Host "  - Applying Kubernetes configurations..."
+Write-Host "  - Applying Kubernetes configurations (deployment, service, hpa)..."
 kubectl apply -f deployment.yaml,service.yaml,hpa.yaml
 if (-not $?) { Write-Host "❌ FATAL: 'kubectl apply' failed." -ForegroundColor Red; exit 1 }
 
-# Automatically start the port-forward process in a new window.
+# --- NEW: Wait for the deployment to be ready before port-forwarding ---
+Write-Host "  - Waiting for Kubernetes pods to become ready... (This may take a minute)"
+kubectl wait --for=condition=available deployment/string-reverser-deployment --timeout=120s
+if (-not $?) { 
+    Write-Host "❌ FATAL: Timed out waiting for Kubernetes deployment to be ready." -ForegroundColor Red
+    Write-Host "  - Run 'kubectl get pods' to check the status of your pods for errors." -ForegroundColor Cyan
+    exit 1 
+}
+Write-Host "  - Pods are running!"
+
 Write-Host "  - Starting Kubernetes port-forward in a new window... (Please keep this new window open)"
-$portForwardCommand = "kubectl port-forward service/cpu-loader-service --address 0.0.0.0 5002:5000"
+$portForwardCommand = "kubectl port-forward service/string-reverser-service --address 0.0.0.0 5002:5000"
 Start-Process powershell -ArgumentList "-NoExit", "-Command", "$portForwardCommand"
-Write-Host "  - Kubernetes service is LIVE."
+Write-Host "  - Kubernetes service is now LIVE."
 
 
 # --- Part 3: Final Summary ---
-Write-Host "`n✅✅✅ All Services Deployed! ✅✅✅" -ForegroundColor Green
-Write-Host "Both services are now running and accessible on your local network."
+Write-Host "`n[3/3] ✅ All Services Deployed Successfully! ✅" -ForegroundColor Green
+Write-Host "The services are now running and accessible on your local network."
 Write-Host "------------------------------------------------------------------"
-Write-Host "[Docker Swarm]:   http://$($env:LOCAL_IP):5001"
-Write-Host "[Kubernetes]:     http://$($env:LOCAL_IP):5002"
+Write-Host "[Docker Swarm]:   http://$($env:LOCAL_IP):5001/reverse"
+Write-Host "[Kubernetes]:     http://$($env:LOCAL_IP):5002/reverse"
 Write-Host "------------------------------------------------------------------"
-Write-Host "Provide these two URLs to your professor for testing."
+Write-Host "Provide these URLs and the IP Address to your evaluator."
 Write-Host "Keep this terminal AND the new 'kubectl port-forward' window open."
+

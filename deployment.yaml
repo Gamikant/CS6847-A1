@@ -1,23 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: cpu-loader-deployment
+  name: string-reverser-deployment
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: cpu-loader
+      app: string-reverser
   template:
     metadata:
       labels:
-        app: cpu-loader
+        app: string-reverser
     spec:
       containers:
       - name: server-container
-        image: cpu-loader-server:v1
+        image: string-reverser:v1
+        # This policy ensures Kubernetes uses the local image you built
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 5000
+        # Resources for the container. String reversal is not very CPU intensive.
         resources:
           requests:
             cpu: "200m"

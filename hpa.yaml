@@ -1,18 +1,20 @@
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: cpu-loader-hpa
+  name: string-reverser-hpa
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: cpu-loader-deployment # Points to our deployment
-  minReplicas: 3   # The minimum number of pods 
-  maxReplicas: 10  # The maximum number of pods 
+    # This must match the name of your deployment
+    name: string-reverser-deployment
+  minReplicas: 3
+  maxReplicas: 10
   metrics:
   - type: Resource
     resource:
       name: cpu
       target:
+        # Target CPU utilization percentage to trigger scaling
         type: Utilization
-        averageUtilization: 50 # Target 50% CPU utilization
+        averageUtilization: 50

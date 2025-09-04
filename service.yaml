@@ -1,14 +1,16 @@
-# service.yaml
 apiVersion: v1
 kind: Service
 metadata:
-  name: cpu-loader-service
+  name: string-reverser-service
 spec:
-  # Revert back to NodePort for reliability
+  # Using NodePort allows us to reliably expose the service using the kubectl port-forward command.
   type: NodePort
   selector:
-    app: cpu-loader
+    # This must match the 'app' label in your deployment.yaml
+    app: string-reverser
   ports:
     - protocol: TCP
+      # This is the port inside the Kubernetes cluster.
       port: 5000
       targetPort: 5000
+
